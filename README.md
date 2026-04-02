@@ -22,6 +22,7 @@ Open the folder for the bot you want; each project has its own `README.md` with 
 | [Hyperliquid-Copy-Trading-Bot](./Hyperliquid-Copy-Trading-Bot/) | Hyperliquid perpetual futures copy trading (TypeScript, WebSocket fills). |
 | [Kuru-Copy-Trading-Bot](./Kuru-Copy-Trading-Bot/) | Kuru DEX on Monad — mirrors limit orders from tracked wallets. |
 | [Meteora-DLMM-Copy-Trading-Bot](./Meteora-DLMM-Copy-Trading-Bot/) | Meteora DLMM pools on Solana — leader/follower copy trading with risk controls. |
+| [Polymarket-Copy-Trading-Bot](./Polymarket-Copy-Trading-Bot/) | Polymarket on Polygon — mirror traders from the leaderboard with proportional sizing, MongoDB, Python. |
 | [Solana-Copy-Trading-Bot](./Solana-Copy-Trading-Bot/) | High-speed Solana copy trading (Pump.fun, PumpSwap, routing, multiple tx paths). |
 
 ## Disclaimer

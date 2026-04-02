@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "polymarket-copy-trading-bot"
+version = "1.0.0"
+description = "Automated copy trading bot for Polymarket"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "python-dotenv>=1.0.0",
+    "pymongo>=4.6.0",
+    "web3>=6.11.0",
+    "httpx>=0.25.0",
+    "websockets>=12.0",
+    "rich>=13.7.0",
+    "colorama>=0.4.6",
+    "python-dateutil>=2.8.2",
+    "eth-account>=0.9.0",
+    "eth-utils>=2.3.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/sinusflow/copy-trading-bot-hub"
+Repository = "https://github.com/sinusflow/copy-trading-bot-hub"
+Issues = "https://github.com/sinusflow/copy-trading-bot-hub/issues"
+
+[project.scripts]
+polymarket-bot = "src.main:main"
+
