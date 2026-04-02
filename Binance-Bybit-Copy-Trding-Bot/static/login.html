@@ -1,0 +1,47 @@
+<!-- static/login.html -->
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login - Blockfin</title>
+  <style>
+    body{margin:0;background:#0b1220;color:#eaf0ff;font-family:system-ui,Segoe UI,Roboto,Arial}
+    .wrap{min-height:100vh;display:grid;place-items:center}
+    .card{width:360px;background:#0f172a;border:1px solid #1e293b;border-radius:14px;padding:18px}
+    h1{margin:0 0 12px 0;font-size:18px}
+    label{font-size:12px;color:#a5b4fc}
+    input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #334155;background:#0b1324;color:#fff;margin-top:6px}
+    button{margin-top:12px;width:100%;padding:10px 12px;border:1px solid #334155;border-radius:10px;background:#1f2a44;color:#fff;cursor:pointer}
+    button:hover{background:#233055}
+    .err{color:#fda4af;font-size:12px;height:18px;margin-top:6px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Blockfin 로그인</h1>
+      <label>아이디</label>
+      <input type="text" id="id" placeholder="admin" />
+      <label style="margin-top:10px">비밀번호</label>
+      <input type="password" id="pw" placeholder="********" />
+      <div id="err" class="err"></div>
+      <button onclick="login()">로그인</button>
+    </div>
+  </div>
+<script>
+async function login(){
+  const username = document.getElementById('id').value.trim();
+  const password = document.getElementById('pw').value.trim();
+  const r = await fetch('/api/login', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({username, password})
+  });
+  const j = await r.json();
+  if(j.ok){ location.href = '/'; }
+  else { document.getElementById('err').textContent = j.error || '로그인 실패'; }
+}
+</script>
+</body>
+</html>

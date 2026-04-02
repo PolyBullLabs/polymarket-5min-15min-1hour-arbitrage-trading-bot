@@ -1,0 +1,5 @@
+.env
+.env.template
+.idea
+cookie.txt
+__pycache__

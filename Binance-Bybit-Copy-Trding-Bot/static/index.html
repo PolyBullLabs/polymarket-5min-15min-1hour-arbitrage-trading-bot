@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Blockfin Master</title>
+  <style>
+    :root{
+      --bg:#0b1220;--panel:#0f172a;--line:#1e293b;--line2:#334155;--ink:#eaf0ff;--mut:#93a5ff;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,Segoe UI,Roboto,Arial}
+    header{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--panel);border-bottom:1px solid var(--line)}
+    .logo{font-weight:700}
+    .container{display:grid;grid-template-columns:480px 1fr;gap:14px;padding:14px}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+    .card h3{margin:0 0 10px 0;font-size:16px}
+    input, textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line2);background:#0b1324;color:#fff;margin-top:6px}
+    textarea{min-height:280px;font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    button{padding:10px 12px;border:1px solid var(--line2);border-radius:10px;background:#1f2a44;color:#fff;cursor:pointer}
+    button:hover{background:#233055}
+    .muted{color:var(--mut)}
+    .logs{height:70vh;overflow:auto;background:#0b1324;border-radius:10px;padding:10px;font-family:ui-monospace,Consolas,monospace;border:1px solid var(--line2)}
+    .log-line{white-space:pre-wrap;font-size:12px;border-bottom:1px dotted #243149;padding:4px 0}
+    table{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px;border:1px solid var(--line2);border-radius:10px;overflow:hidden}
+    th,td{border-bottom:1px solid #243149;padding:8px 6px;text-align:left;vertical-align:middle}
+    th{background:#0c1528}
+    .ok{color:#7df59e}
+    .err{color:#ff7b7b}
+    .tag{font-size:11px;background:#223055;border:1px solid #2f3b66;border-radius:8px;padding:2px 6px}
+    .spacer{height:8px}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">Blockfin Master</div>
+    <div><button onclick="logout()">로그아웃</button></div>
+  </header>
+
+  <div class="container">
+    <!-- 좌측: 마스터 키 + 팔로워 JSON 입력 -->
+    <div class="card">
+      <h3>마스터 API 설정</h3>
+      <div class="row">
+        <div>
+          <label>MASTER_API_KEY_BLO</label>
+          <input id="mk" placeholder="..." />
+        </div>
+        <div>
+          <label>passphrase</label>
+          <input id="mp" placeholder="..." />
+        </div>
+      </div>
+      <div style="margin-top:8px">
+        <label>MASTER_API_SECRET_BLO</label>
+        <input id="ms" placeholder="..." />
+      </div>
+      <div style="margin-top:10px">
+        <button onclick="saveEnv()">저장 & 재시작</button>
+        <span id="saveMsg" class="muted" style="margin-left:8px"></span>
+      </div>
+
+      <div class="spacer"></div>
+
+      <h3>팔로워 계정 키 (followers.json)</h3>
+      <div class="muted" style="font-size:12px;margin-bottom:6px">
+        아래 예시 형식으로 그대로 붙여넣으세요. <span class="tag">id</span>는 팔로워 식별 번호입니다.
+      </div>
+      <pre class="muted" style="font-size:12px;white-space:pre-wrap;margin:0 0 6px 0">[
+  {
+    "id": 1,
+    "name": "SUB_ONE",
+    "key": "",
+    "secret": "",
+    "passphrase": "alsdnr123"
+  }
+]</pre>
+
+      <textarea id="followers"></textarea>
+
+      <div style="display:flex; gap:10px; margin-top:10px; align-items:center">
+        <button onclick="validateFollowers()">문법 검사</button>
+        <button onclick="saveFollowers()">키 저장</button>
+        <span id="fwMsg" class="muted"></span>
+      </div>
+
+      <div id="previewWrap" style="margin-top:10px; display:none">
+        <div class="muted">미리보기 (key/secret/passphrase는 일부 마스킹됩니다)</div>
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Name</th><th>Key</th><th>Secret</th><th>Passphrase</th></tr>
+          </thead>
+          <tbody id="previewBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 우측: 실시간 로그 -->
+    <div class="card">
+      <h3>실시간 로그</h3>
+      <div id="logs" class="logs"></div>
+    </div>
+  </div>
+
+<script>
+function mask(val){
+  const s = String(val||'');
+  if(!s) return '';
+  if(s.length<=4) return '*'.repeat(s.length);
+  return s.slice(0,2) + '*'.repeat(Math.max(0,s.length-4)) + s.slice(-2);
+}
+
+function showPreview(arr){
+  const wrap = document.getElementById('previewWrap');
+  const tb = document.getElementById('previewBody');
+  tb.innerHTML = '';
+  if(!Array.isArray(arr) || arr.length===0){ wrap.style.display='none'; return; }
+  arr.forEach(row=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${row.id??''}</td>
+      <td>${row.name??''}</td>
+      <td>${mask(row.key)}</td>
+      <td>${mask(row.secret)}</td>
+      <td>${mask(row.passphrase)}</td>
+    `;
+    tb.appendChild(tr);
+  });
+  wrap.style.display = 'block';
+}
+
+async function loadEnv(){
+  const r = await fetch('/api/env');
+  if(!r.ok){ if(r.status==401) location.href='/login'; return; }
+  const j = await r.json();
+  if(j.ok){
+    document.getElementById('mk').value = j.master.key || '';
+    document.getElementById('ms').value = '';
+    document.getElementById('mp').value = (j.master.passphrase==='***'?'':j.master.passphrase) || '';
+
+    // followers.json 현재값 채우기 (id 지원)
+    const followers = Array.isArray(j.followers) ? j.followers : [];
+    document.getElementById('followers').value = JSON.stringify(followers, null, 2);
+    showPreview(followers);
+  }
+}
+
+function validateFollowers(){
+  const el = document.getElementById('fwMsg');
+  try{
+    const text = document.getElementById('followers').value;
+    const arr = JSON.parse(text || '[]');
+
+    if(!Array.isArray(arr)) throw new Error('배열이 아닙니다.');
+    // 간단 검증: id, name, key, secret, passphrase 필드 존재
+    arr.forEach((obj, i)=>{
+      if(typeof obj !== 'object' || obj===null) throw new Error(`${i+1}번째 항목이 객체가 아닙니다.`);
+      if(typeof obj.id === 'undefined') throw new Error(`${i+1}번째 항목: id 필드가 없습니다.`);
+      // 나머지 필드는 빈 문자열 허용
+    });
+
+    el.textContent = '문법 OK';
+    el.className = 'ok';
+    showPreview(arr);
+    return arr;
+  }catch(e){
+    el.textContent = '오류: ' + e.message;
+    el.className = 'err';
+    showPreview([]);
+    return null;
+  }
+}
+
+async function saveEnv(){
+  const mk = document.getElementById('mk').value.trim();
+  const ms = document.getElementById('ms').value.trim();
+  const mp = document.getElementById('mp').value.trim();
+  const r = await fetch('/api/save-env', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ masterKey: mk, masterSecret: ms, passphrase: mp })
+  });
+  const j = await r.json();
+  const el = document.getElementById('saveMsg');
+  if(j.ok){ el.textContent = '저장 & 재시작 완료'; el.className='ok'; }
+  else{ el.textContent = '오류: ' + (j.error||''); el.className='err'; }
+}
+
+async function saveFollowers(){
+  const arr = validateFollowers();
+  if(!arr) return;
+  const r = await fetch('/api/save-env', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ followersJson: JSON.stringify(arr) })
+  });
+  const j = await r.json();
+  const el = document.getElementById('fwMsg');
+  if(j.ok){ el.textContent = '팔로워 키 저장 완료'; el.className='ok'; }
+  else{ el.textContent = '오류: ' + (j.error||''); el.className='err'; }
+}
+
+function appendLog(line){
+  const el = document.getElementById('logs');
+  const d = new Date(line.ts || Date.now());
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mm = String(d.getMinutes()).padStart(2,'0');
+  const ss = String(d.getSeconds()).padStart(2,'0');
+  const t = `[${hh}:${mm}:${ss}] ${line.msg}`;
+  const div = document.createElement('div');
+  div.className = 'log-line';
+  div.textContent = t;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+function connectWS(){
+  const ws = new WebSocket((location.protocol==='https:'?'wss://':'ws://') + location.host + '/ws');
+  ws.onmessage = (ev) => { try{ const j = JSON.parse(ev.data); if(j.type==='log') appendLog(j); } catch {} };
+  ws.onclose = () => { setTimeout(connectWS, 1000); };
+}
+
+async function logout(){
+  await fetch('/api/logout', {method:'POST'});
+  location.href='/login';
+}
+
+loadEnv();
+connectWS();
+</script>
+</body>
+</html>

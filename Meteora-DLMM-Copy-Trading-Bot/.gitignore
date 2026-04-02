@@ -1,0 +1,15 @@
+#   env
+.env
+
+*.test.ts
+
+
+#   node mudule
+node_modules
+
+#   lock file
+*.lock
+*-lock.json
+
+#   dist
+dist

@@ -1,0 +1,13 @@
+# 환경변수
+.env
+.env.local
+.auth.env
+.block.env
+# JSON 전체 무시 (필요 시 경로 조정)
+*.json
+
+# 노드 모듈
+node_modules/
+
+# 빌드 폴더
+dist/

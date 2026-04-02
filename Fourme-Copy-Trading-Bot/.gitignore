@@ -1,0 +1,53 @@
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# TypeScript/Node.js
+node_modules/
+dist/
+build/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.eslintcache
+.tsbuildinfo
+
+# Rust
+target/
+Cargo.lock
+**/*.rs.bk
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+error.log
+combined.log
+
+# Testing
+coverage/
+.nyc_output/
+*.test.js.snap
+
+# Misc
+*.pid
+*.seed
+*.pid.lock
+.vercel
+
+# Build artifacts
+*.dylib
+*.so
+*.dll
+*.exe
