@@ -1,4 +1,5 @@
-# Copy Trading Bot Hub
+git clone https://github.com/sinusflow/copy-trading-bot-hub.git
+cd copy-trading-bot-hub# Copy Trading Bot Hub
 
 Collection of copy-trading bots for different chains and venues. Source: [github.com/sinusflow/copy-trading-bot-hub](https://github.com/sinusflow/copy-trading-bot-hub).
 
