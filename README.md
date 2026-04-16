@@ -9,7 +9,7 @@ This suite is **educational and experimental**. Use **simulation / dry-run** fir
 
  **Contact (Telegram)** — [@terauss](https://t.me/terauss)
 
-This repository is hosted under **[PolyBullLabs](https://github.com/PolyBullLabs)** ([polymakret-5min-15min-1hour-arbitrage-bot](https://github.com/PolyBullLabs/polymakret-5min-15min-1hour-arbitrage-bot)). The **[Poly-Tutor](https://github.com/Poly-Tutor)** org also publishes **Rust** Polymarket bots on **5m**, **15m**, and **1h** horizons with **different strategies** than this Python suite—see the table below.
+This repository is hosted under **[PolyBullLabs](https://github.com/PolyBullLabs)** ([polymakret-5min-15min-1hour-arbitrage-bot](https://github.com/PolyBullLabs/polymarket-5min-15min-1hour-arbitrage-bot)). The  org also publishes **Rust** Polymarket bots on **5m**, **15m**, and **1h** horizons with **different strategies** than this Python suite—see the table below.
 
 
 
