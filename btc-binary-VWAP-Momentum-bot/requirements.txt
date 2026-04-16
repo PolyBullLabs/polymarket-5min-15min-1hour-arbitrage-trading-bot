@@ -1,0 +1,35 @@
+# BTC 15-min Live Trading Bot - Dependencies
+
+# Polymarket SDK
+py-clob-client>=0.16.0
+
+# Web3 for blockchain interactions
+web3>=6.0.0
+eth-account>=0.10.0
+
+# Async HTTP/WebSocket
+aiohttp>=3.9.0
+websockets>=12.0
+
+# Telegram
+python-telegram-bot>=20.0
+
+# Data processing
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Visualization (for equity charts)
+matplotlib>=3.8.0
+
+# Terminal UI (main.py dashboard)
+rich>=13.0.0
+
+# Config
+python-dotenv>=1.0.0
+
+# Web dashboard (optional; enable in config.json web_dashboard.enabled)
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+
+# Misc
+requests>=2.31.0

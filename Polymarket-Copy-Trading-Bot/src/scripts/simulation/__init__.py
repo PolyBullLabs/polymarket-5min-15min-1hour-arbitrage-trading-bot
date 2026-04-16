@@ -1,2 +1,0 @@
-"""Simulation and analysis scripts"""
-

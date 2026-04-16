@@ -1,2 +1,0 @@
-"""Setup and configuration scripts"""
-

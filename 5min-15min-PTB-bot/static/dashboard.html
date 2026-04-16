@@ -1,0 +1,1133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BTC Auto-Trading Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0a0e14;
+      --bg-accent: #0f1419;
+      --surface: #151b26;
+      --surface-muted: #0f131c;
+      --line: #2a3548;
+      --line-strong: #3d4d66;
+      --text: #e8edf4;
+      --muted: #8b9bb5;
+      --ink: #d4dce8;
+      --accent: #60a5fa;
+      --accent-soft: rgba(96, 165, 250, 0.14);
+      --ok: #34d399;
+      --warn: #fbbf24;
+      --err: #f87171;
+      --ok-soft: rgba(52, 211, 153, 0.14);
+      --warn-soft: rgba(251, 191, 36, 0.12);
+      --err-soft: rgba(248, 113, 113, 0.14);
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.03);
+      --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.45);
+      --radius: 14px;
+      --radius-sm: 10px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: "DM Sans", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+      background:
+        radial-gradient(1100px 500px at -5% -10%, rgba(59, 130, 246, 0.14) 0%, transparent 58%),
+        radial-gradient(900px 420px at 105% -5%, rgba(52, 211, 153, 0.08) 0%, transparent 52%),
+        linear-gradient(165deg, var(--bg) 0%, var(--bg-accent) 55%, #0a0d12 100%);
+      min-height: 100vh;
+    }
+    .wrap { max-width: 1420px; margin: 0 auto; padding: 24px 20px 32px; }
+    .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--line);
+    }
+    .title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      line-height: 1.25;
+    }
+    .title::after {
+      content: "";
+      display: block;
+      width: 48px;
+      height: 3px;
+      margin-top: 10px;
+      border-radius: 2px;
+      background: linear-gradient(90deg, #60a5fa, #22d3ee);
+    }
+    .sub, .muted { color: var(--muted); font-size: 0.8125rem; }
+    .sub { margin-top: 6px; font-weight: 500; }
+    .head-badges { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    .interval-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .interval-label {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .interval-btn {
+      border: 1px solid var(--line-strong);
+      background: var(--surface-muted);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+    }
+    .interval-btn:hover {
+      border-color: var(--accent);
+      color: #bfdbfe;
+    }
+    .interval-btn.active {
+      border-color: rgba(96, 165, 250, 0.45);
+      background: var(--accent-soft);
+      color: #93c5fd;
+    }
+    .interval-btn:disabled {
+      opacity: 0.45;
+      cursor: wait;
+      pointer-events: none;
+    }
+    .badge {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 14px;
+      background: var(--surface);
+      color: var(--ink);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      box-shadow: var(--shadow-sm);
+    }
+    #walletBalance {
+      border-color: rgba(96, 165, 250, 0.35);
+      background: var(--accent-soft);
+      color: #93c5fd;
+    }
+    #updatedAt {
+      color: var(--muted);
+      font-weight: 500;
+      background: var(--surface-muted);
+      border-color: var(--line);
+    }
+    .grid { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(300px, 0.95fr); gap: 18px; align-items: start; }
+    .grid > * { min-width: 0; }
+    .left { display: grid; gap: 18px; }
+    .card {
+      position: relative;
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px 18px 16px;
+      box-shadow: var(--shadow-md);
+    }
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(135deg, rgba(96, 165, 250, 0.07) 0%, transparent 42%, transparent 58%, rgba(34, 211, 238, 0.05) 100%);
+    }
+    .card > * { position: relative; z-index: 1; }
+    .card h3 {
+      margin: 0;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .card-head { display: flex; align-items: center; justify-content: space-between; margin: 0 0 14px; gap: 12px; }
+    .card-tools { display: flex; gap: 8px; align-items: center; }
+    .mini-btn {
+      border: 1px solid var(--line-strong);
+      background: var(--surface-muted);
+      color: var(--ink);
+      border-radius: var(--radius-sm);
+      padding: 5px 10px;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+    }
+    .mini-btn:hover {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .kv { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 260px)); gap: 12px; justify-content: start; }
+    .kv-tight { grid-template-columns: repeat(auto-fit, minmax(220px, 260px)); justify-content: start; }
+    .kv-price { grid-template-columns: repeat(3, minmax(220px, 260px)); }
+    .kv2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 260px)); gap: 12px; justify-content: start; }
+    .item {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      min-height: 72px;
+      background: var(--surface-muted);
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .item:hover { border-color: var(--line-strong); box-shadow: var(--shadow-md); }
+    .k { color: var(--muted); font-size: 0.75rem; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .v { font-weight: 700; font-size: 1.125rem; color: var(--ink); word-break: break-all; }
+    .mono { font-family: "JetBrains Mono", Consolas, Monaco, "Courier New", monospace; font-size: 0.8125rem; font-weight: 500; }
+    .up { color: var(--ok); }
+    .down { color: var(--err); }
+    .warn { color: var(--warn); }
+    .logs {
+      height: calc(100vh - 190px);
+      min-height: 380px;
+      overflow: auto;
+      background: #080b10;
+      color: #cbd5e1;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      font-size: 0.75rem;
+    }
+    .log { margin: 0 0 6px; font: 0.75rem/1.55 "JetBrains Mono", Consolas, monospace; white-space: pre-wrap; word-break: break-word; color: #94a3b8; }
+    .log-OK, .log-TRADE { color: var(--ok); }
+    .log-WARN { color: #fcd34d; }
+    .log-ERR { color: var(--err); }
+    .round-list {
+      margin-top: 10px;
+      height: 300px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 10px 10px 72px;
+      background: var(--surface-muted);
+    }
+    .round-item {
+      border-bottom: 1px solid var(--line);
+      padding: 8px 6px;
+      font-size: 0.75rem;
+      color: var(--ink);
+    }
+    .round-item:last-child { border-bottom: none; }
+    .history-list {
+      max-height: 240px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 8px;
+      background: var(--surface-muted);
+    }
+    .history-item { border-bottom: 1px solid var(--line); padding: 10px 8px; }
+    .history-item:last-child { border-bottom: none; }
+    .history-main { font-size: 0.8125rem; font-weight: 600; color: var(--text); }
+    .history-sub { margin-top: 4px; color: var(--muted); font-size: 0.75rem; }
+    .trade-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .trade-field {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      background: var(--surface-muted);
+    }
+    .trade-field label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .trade-field input, .trade-field select {
+      width: 100%;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-size: 0.9375rem;
+      color: var(--text);
+      background: var(--surface-muted);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .trade-field input:focus, .trade-field select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.22);
+    }
+    .trade-actions { grid-column: 1 / -1; display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      border: 1px solid var(--line-strong);
+      background: var(--surface-muted);
+      border-radius: var(--radius-sm);
+      padding: 10px 16px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--ink);
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s, background 0.15s, color 0.15s;
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--accent);
+      color: #bfdbfe;
+    }
+    .btn-buy {
+      background: linear-gradient(180deg, #059669, #047857);
+      border-color: #10b981;
+      color: #ecfdf5;
+    }
+    .btn-buy:hover {
+      background: linear-gradient(180deg, #047857, #065f46);
+      border-color: #34d399;
+      color: #fff;
+    }
+    .btn-sell {
+      background: var(--surface-muted);
+      border-color: rgba(248, 113, 113, 0.4);
+      color: #fca5a5;
+    }
+    .btn-sell:hover {
+      background: var(--err-soft);
+      border-color: var(--err);
+      color: #fecaca;
+    }
+    .trade-tip { grid-column: 1 / -1; font-size: 0.75rem; color: var(--muted); line-height: 1.45; }
+    .quick-amounts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .chip {
+      border: 1px solid var(--line-strong);
+      background: var(--surface-muted);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+    }
+    .chip:hover {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    @media (max-width: 1080px) {
+      .grid { grid-template-columns: 1fr; }
+      .logs { height: 360px; min-height: 300px; }
+      .round-list { height: 220px; }
+      .kv, .kv-tight, .kv2, .kv-price { grid-template-columns: 1fr 1fr; justify-content: stretch; }
+    }
+    @media (max-width: 760px) {
+      .kv, .kv-tight, .kv2, .kv-price, .trade-panel { grid-template-columns: 1fr; }
+      .v { font-size: 1rem; }
+      .trade-actions { flex-direction: column; }
+      .head { align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="head">
+      <div>
+        <div class="title">Polymarket BTC Auto-Trading Dashboard</div>
+        <div id="marketSlug" class="sub">Market: -</div>
+      </div>
+      <div class="head-badges">
+        <div class="interval-bar" role="group" aria-label="BTC market duration">
+          <span class="interval-label">Market</span>
+          <button type="button" class="interval-btn" data-min="5" id="intervalBtn5m">5m</button>
+          <button type="button" class="interval-btn" data-min="15" id="intervalBtn15m">15m</button>
+        </div>
+        <div id="walletBalance" class="badge">Balance: -</div>
+        <div id="updatedAt" class="badge">Updated: -</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="left">
+        <section class="card">
+          <h3>Market</h3>
+          <div class="kv kv-tight">
+            <div class="item"><div class="k">Time remaining</div><div id="remainingText" class="v">-</div></div>
+            <div class="item"><div class="k">Market status</div><div id="marketStatus" class="v">-</div></div>
+            <div class="item"><div class="k">Price update (ts)</div><div id="priceUpdatedTs" class="v mono">-</div></div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>Prices &amp; diff</h3>
+          <div class="kv kv-tight kv-price">
+            <div class="item"><div class="k">PTB</div><div id="ptb" class="v">-</div></div>
+            <div class="item"><div class="k">Chainlink BTC</div><div id="chainlink" class="v">-</div></div>
+            <div class="item"><div class="k">Binance BTC</div><div id="binance" class="v">-</div></div>
+            <div class="item"><div class="k">UP price</div><div id="upPrice" class="v">-</div></div>
+            <div class="item"><div class="k">DOWN price</div><div id="downPrice" class="v">-</div></div>
+            <div class="item"><div class="k">Diff (BTC-PTB)</div><div id="diff" class="v">-</div></div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>Manual trade</h3>
+          <div class="trade-panel">
+            <div class="trade-field">
+              <label>Side</label>
+              <select id="manualOutcome">
+                <option value="UP">UP</option>
+                <option value="DOWN">DOWN</option>
+              </select>
+            </div>
+            <div class="trade-field">
+              <label>Order size (USDC)</label>
+              <input id="manualAmount" type="number" min="0.1" step="0.1" value="5">
+              <div class="quick-amounts" id="quickAmounts">
+                <button type="button" class="chip" data-amt="5">$5</button>
+                <button type="button" class="chip" data-amt="10">$10</button>
+                <button type="button" class="chip" data-amt="20">$20</button>
+                <button type="button" class="chip" data-amt="50">$50</button>
+              </div>
+            </div>
+            <div class="trade-field" style="grid-column:1 / -1;">
+              <label>Target probability (0.6 or 60)</label>
+              <input id="manualProb" type="number" min="1" max="99" step="0.1" value="60">
+            </div>
+            <div class="trade-field">
+              <label>Take-profit level (0.6 or 60)</label>
+              <input id="manualTpProb" type="number" min="1" max="99" step="0.1" placeholder="e.g. 98.5">
+            </div>
+            <div class="trade-field">
+              <label>Stop-loss level (0.6 or 60)</label>
+              <input id="manualSlProb" type="number" min="1" max="99" step="0.1" placeholder="e.g. 92">
+            </div>
+            <div class="trade-actions">
+              <button id="manualBuyBtn" class="btn btn-buy">Buy</button>
+              <button id="manualSellBtn" class="btn btn-sell">Sell</button>
+              <button id="manualTpBtn" class="btn btn-sell">Sell (TP)</button>
+              <button id="manualSlBtn" class="btn btn-sell">Sell (SL)</button>
+            </div>
+            <div id="manualTip" class="trade-tip">Note: Confirm market and price before submit; fills are per exchange.</div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>Orders &amp; position</h3>
+          <div class="kv2">
+            <div class="item"><div class="k">Position</div><div id="position" class="v mono">-</div></div>
+            <div class="item"><div class="k">Open order</div><div id="pendingOrder" class="v mono">-</div></div>
+            <div class="item" style="grid-column:1 / -1;"><div class="k">Last order</div><div id="lastOrder" class="v mono">-</div></div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>Trade history</h3>
+          <div class="kv" style="margin-bottom:8px;">
+            <div class="item"><div class="k">Realized P&amp;L</div><div id="pnlRealized" class="v">$0.000</div></div>
+            <div class="item"><div class="k">Unrealized P&amp;L</div><div id="pnlUnrealized" class="v">$0.000</div></div>
+            <div class="item"><div class="k">Total P&amp;L</div><div id="pnlTotal" class="v">$0.000</div></div>
+            <div class="item"><div class="k">Win rate</div><div id="winRate" class="v">-</div></div>
+          </div>
+          <div class="muted" id="historyCount" style="margin-bottom:8px;">Records: 0</div>
+          <div id="historyList" class="history-list"></div>
+        </section>
+
+        <section class="card">
+          <h3>Auto redeem (relayer)</h3>
+          <div class="kv">
+            <div class="item"><div class="k">Status</div><div id="redeemEnabled" class="v">-</div></div>
+            <div class="item"><div class="k">Pending redeemable</div><div id="redeemPending" class="v">-</div></div>
+            <div class="item"><div class="k">Claimable (this wallet)</div><div id="redeemClaimable" class="v">-</div></div>
+          </div>
+          <div id="redeemResult" class="muted" style="margin-top:10px;">Last result: -</div>
+          <div id="redeemError" class="muted" style="margin-top:6px;">Last error: -</div>
+        </section>
+
+      </div>
+
+      <section class="card" style="min-width:300px;">
+        <h3>Live log</h3>
+        <div id="logs" class="logs"></div>
+        <div id="roundCount" class="muted" style="margin-top:10px;">Rounds: 0</div>
+        <div id="roundResultList" class="round-list"></div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let logSig = "";
+    let historySig = "";
+    let roundSig = "";
+    let remainingEndsAtMs = null;
+    let latestMarket = {};
+    let latestPrices = {};
+    const priceTrend = {
+      chainlink: { base: null, sec: 0 },
+      binance: { base: null, sec: 0 },
+      up: { base: null, sec: 0 },
+      down: { base: null, sec: 0 },
+    };
+
+    function fmtRemainingSec(sec) {
+      const s = Math.max(0, Number(sec) || 0);
+      return `${Math.floor(s / 60)}m ${s % 60}s`;
+    }
+
+    setInterval(() => {
+      if (remainingEndsAtMs === null) return;
+      const sec = Math.max(0, Math.floor((remainingEndsAtMs - Date.now()) / 1000));
+      $("remainingText").textContent = fmtRemainingSec(sec);
+    }, 1000);
+
+    function fmt(n, d = 2) {
+      if (n === null || n === undefined || Number.isNaN(Number(n))) return "-";
+      return Number(n).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+    }
+    function maybeNum(v) {
+      if (v === null || v === undefined || v === "") return null;
+      const n = Number(v);
+      return Number.isFinite(n) ? n : null;
+    }
+    function fmtSignedMoney(v, digits = 3) {
+      if (v === null || v === undefined) return "--";
+      const n = Number(v);
+      if (!Number.isFinite(n)) return "--";
+      return `${n >= 0 ? "+" : "-"}$${Math.abs(n).toFixed(digits)}`;
+    }
+    function fmtPrice(v) { return v === null || v === undefined ? "-" : `$${fmt(v, 2)}`; }
+    function fmtPct(v) { return v === null || v === undefined ? "-" : `${fmt(Number(v) * 100, 2)}%`; }
+    function asText(v) { return (!v || Object.keys(v).length === 0) ? "-" : JSON.stringify(v); }
+
+    function fmtPosition(v) {
+      if (!v || Object.keys(v).length === 0) return "-";
+      const side = v.side || "-";
+      const px = v.entry_price !== undefined ? `${fmt(Number(v.entry_price) * 100, 2)}%` : "-";
+      const df = v.entry_diff !== undefined ? `${Number(v.entry_diff) >= 0 ? "+" : ""}${fmt(v.entry_diff, 0)}` : "-";
+      const slug = v.slug || "-";
+      return `${side} | entry ${px} | Diff ${df} | ${slug}`;
+    }
+
+    function fmtWalletPositions(rows) {
+      const arr = Array.isArray(rows) ? rows : [];
+      if (!arr.length) return "-";
+      const top = arr.slice(0, 3).map((x) => {
+        const side = x.outcome || x.side || "-";
+        const size = x.size !== undefined ? fmt(x.size, 2) : "-";
+        const avg = x.avgPrice !== undefined ? `${fmt(Number(x.avgPrice) * 100, 2)}%` : (x.avg_price !== undefined ? `${fmt(Number(x.avg_price) * 100, 2)}%` : "-");
+        return `${side} ${size}@${avg}`;
+      }).join(" | ");
+      return `${top}${arr.length > 3 ? ` | +${arr.length - 3} more` : ""}`;
+    }
+
+    function fmtPending(v, currentSlug = "") {
+      if (!v || Object.keys(v).length === 0) return "-";
+      const pSlug = String(v.slug || "").trim();
+      const cSlug = String(currentSlug || "").trim();
+      if (pSlug && cSlug && pSlug !== cSlug) return "-";
+      return `${v.side || "-"} | px ${v.price !== undefined ? `${fmt(Number(v.price) * 100, 2)}%` : "-"} | order ${v.order_id || "-"}`;
+    }
+
+    function fmtPendingAny(v) {
+      if (!v || Object.keys(v).length === 0) return "-";
+      const slug = v.slug ? ` | ${v.slug}` : "";
+      return `${v.side || "-"} | px ${v.price !== undefined ? `${fmt(Number(v.price) * 100, 2)}%` : "-"} | order ${v.order_id || "-"}${slug}`;
+    }
+
+    function fmtLast(v) {
+      if (!v || Object.keys(v).length === 0) return "-";
+      return `${v.key || "-"} | ${v.time || "-"}`;
+    }
+
+    function toDateAny(v) {
+      if (v === null || v === undefined || v === "") return null;
+      if (typeof v === "number" || (typeof v === "string" && /^-?\d+(\.\d+)?$/.test(v.trim()))) {
+        const n = Number(v);
+        if (!Number.isFinite(n)) return null;
+        const ms = Math.abs(n) > 1e12 ? n : n * 1000;
+        const d = new Date(ms);
+        return Number.isFinite(d.getTime()) ? d : null;
+      }
+      const d = new Date(String(v));
+      return Number.isFinite(d.getTime()) ? d : null;
+    }
+
+    function fmtBeijingTime(v) {
+      const d = toDateAny(v);
+      if (!d) return "-";
+      const parts = new Intl.DateTimeFormat("en-US", {
+        timeZone: "Asia/Shanghai",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+      }).formatToParts(d);
+      const pick = (name) => (parts.find((p) => p.type === name) || {}).value || "";
+      return `${pick("year")}-${pick("month")}-${pick("day")} ${pick("hour")}:${pick("minute")}:${pick("second")}`;
+    }
+
+    function fmtBeijingMarketText(start, end, slug) {
+      const s = fmtBeijingTime(start);
+      const e = fmtBeijingTime(end);
+      const compact = (a, b) => {
+        if (a === "-" || b === "-") return "-";
+        const ad = a.slice(0, 10), at = a.slice(11, 16);
+        const bd = b.slice(0, 10), bt = b.slice(11, 16);
+        if (ad === bd) return `CST ${ad} ${at}-${bt}`;
+        return `CST ${a} ~ ${b}`;
+      };
+
+      if (s !== "-" && e !== "-") return compact(s, e);
+      if (s !== "-") return `CST ${s}`;
+
+      const slugText = String(slug || "");
+      const tsMatch = slugText.match(/-(\d{10})$/);
+      const durMatch = slugText.match(/-(\d+)m-/);
+      if (tsMatch) {
+        const startSec = Number(tsMatch[1]);
+        const durationMin = durMatch ? Math.max(1, Number(durMatch[1]) || 15) : 15;
+        const ps = fmtBeijingTime(startSec);
+        const pe = fmtBeijingTime(startSec + durationMin * 60);
+        const t = compact(ps, pe);
+        if (t !== "-") return t;
+      }
+      return "CST -";
+    }
+
+    function setDiff(v) {
+      const el = $("diff");
+      if (v === null || v === undefined || Number.isNaN(Number(v))) {
+        el.textContent = "-";
+        el.className = "v";
+        return;
+      }
+      const n = Number(v);
+      el.textContent = `${n >= 0 ? "+" : ""}${fmt(n, 0)}`;
+      el.className = `v ${n > 0 ? "up" : n < 0 ? "down" : "warn"}`;
+    }
+
+    function setPriceWithArrow(elId, priceVal, trendKey) {
+      const el = $(elId);
+      const n = maybeNum(priceVal);
+      if (n === null) {
+        el.textContent = "-";
+        el.className = "v";
+        priceTrend[trendKey] = { base: null, sec: 0 };
+        return;
+      }
+
+      const nowSec = Math.floor(Date.now() / 1000);
+      const st = priceTrend[trendKey] || { base: null, sec: 0 };
+      let arrow = "→";
+      let cls = "warn";
+      if (st.base !== null) {
+        if (n > st.base) {
+          arrow = "↑";
+          cls = "up";
+        } else if (n < st.base) {
+          arrow = "↓";
+          cls = "down";
+        }
+      }
+
+      el.textContent = `${fmtPrice(n)} ${arrow}`;
+      el.className = `v ${cls}`;
+
+      if (st.sec !== nowSec) {
+        st.base = n;
+        st.sec = nowSec;
+      }
+      priceTrend[trendKey] = st;
+    }
+
+    function setPctWithArrow(elId, pctVal, trendKey) {
+      const el = $(elId);
+      const n = maybeNum(pctVal);
+      if (n === null) {
+        el.textContent = "-";
+        el.className = "v";
+        priceTrend[trendKey] = { base: null, sec: 0 };
+        return;
+      }
+
+      const nowSec = Math.floor(Date.now() / 1000);
+      const st = priceTrend[trendKey] || { base: null, sec: 0 };
+      let arrow = "→";
+      let cls = "warn";
+      if (st.base !== null) {
+        if (n > st.base) {
+          arrow = "↑";
+          cls = "up";
+        } else if (n < st.base) {
+          arrow = "↓";
+          cls = "down";
+        }
+      }
+
+      el.textContent = `${fmtPct(n)} ${arrow}`;
+      el.className = `v ${cls}`;
+
+      if (st.sec !== nowSec) {
+        st.base = n;
+        st.sec = nowSec;
+      }
+      priceTrend[trendKey] = st;
+    }
+
+    function renderStatus(data) {
+      const market = data.market || {};
+      const prices = data.prices || {};
+      const redeem = data.auto_redeem || {};
+      latestMarket = market;
+      latestPrices = prices;
+
+      if (data.btc_market_minutes !== undefined && data.btc_market_minutes !== null) {
+        const btcMin = Number(data.btc_market_minutes);
+        if (Number.isFinite(btcMin)) {
+          document.querySelectorAll(".interval-btn").forEach((b) => {
+            b.classList.toggle("active", Number(b.dataset.min) === btcMin);
+          });
+        }
+      }
+
+      $("updatedAt").textContent = `Updated: ${data.updated_at || "-"}`;
+
+      const bal = data.wallet_balance;
+      $("walletBalance").textContent = bal !== undefined && bal !== null ? `Balance: $${Number(bal).toLocaleString("en-US", {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : "Balance: -";
+      $("marketSlug").textContent = `Market: ${market.slug || "-"}`;
+      const rem = maybeNum(market.remaining);
+      if (rem !== null && rem >= 0 && (market.status || "") === "active") {
+        remainingEndsAtMs = Date.now() + Math.round(rem * 1000);
+        $("remainingText").textContent = fmtRemainingSec(Math.floor(rem));
+      } else {
+        remainingEndsAtMs = null;
+        $("remainingText").textContent = market.remaining_text || "-";
+      }
+      $("marketStatus").textContent = market.status || "-";
+      $("priceUpdatedTs").textContent = prices.updated_ts ? String(prices.updated_ts) : "-";
+
+      $("ptb").textContent = fmtPrice(prices.ptb);
+      setPriceWithArrow("chainlink", prices.chainlink_btc, "chainlink");
+      setPriceWithArrow("binance", prices.binance_btc, "binance");
+      setPctWithArrow("upPrice", prices.up_price, "up");
+      setPctWithArrow("downPrice", prices.down_price, "down");
+      setDiff(prices.diff);
+
+      const localPos = fmtPosition(data.position);
+      const walletPos = fmtWalletPositions(data.wallet_positions);
+      $("position").textContent = localPos !== "-" ? localPos : (walletPos !== "-" ? `Wallet sync: ${walletPos}` : "-");
+      const pendingText = fmtPending(data.pending_order, market.slug || "");
+      $("pendingOrder").textContent = pendingText;
+      const hasCrossMarketPending = pendingText === "-" && data.pending_order && Object.keys(data.pending_order).length > 0;
+      $("lastOrder").textContent = hasCrossMarketPending ? `Cross-market order | ${fmtPendingAny(data.pending_order)}` : fmtLast(data.last_order);
+
+      const enabled = !!redeem.enabled;
+      $("redeemEnabled").textContent = enabled ? "On" : "Off";
+      $("redeemEnabled").className = `v ${enabled ? "up" : "warn"}`;
+      $("redeemPending").textContent = String(redeem.pending_count ?? "-");
+      $("redeemClaimable").textContent = String(redeem.claimable_count ?? "-");
+      $("redeemResult").textContent = `Last result: ${redeem.last_result ? JSON.stringify(redeem.last_result) : "-"}`;
+      $("redeemError").textContent = `Last error: ${redeem.last_error || "-"}`;
+
+      const tip = $("manualTip");
+      if (tip) {
+        if (!market.slug) {
+          tip.textContent = "Note: No active market; manual orders are disabled.";
+        } else {
+          tip.textContent = `Note: Active market ${market.slug} — manual buy/sell available.`;
+        }
+      }
+
+      const rp = maybeNum(data.live_realized_pnl);
+      const up = maybeNum(data.live_unrealized_pnl);
+      const tp = maybeNum(data.live_total_pnl);
+      const rpEl = $("pnlRealized");
+      const upEl = $("pnlUnrealized");
+      const tpEl = $("pnlTotal");
+      rpEl.textContent = fmtSignedMoney(rp, 3);
+      upEl.textContent = fmtSignedMoney(up, 3);
+      tpEl.textContent = fmtSignedMoney(tp, 3);
+      rpEl.className = `v ${rp === null ? "" : (rp >= 0 ? "up" : "down")}`;
+      upEl.className = `v ${up === null ? "" : (up >= 0 ? "up" : "down")}`;
+      tpEl.className = `v ${tp === null ? "" : (tp >= 0 ? "up" : "down")}`;
+
+      const liveTrades = Array.isArray(data.live_trades) ? data.live_trades : [];
+      const localHistory = Array.isArray(data.trade_history) ? data.trade_history : [];
+      const walletHistory = Array.isArray(data.wallet_history) ? data.wallet_history : [];
+      const historyRows = liveTrades.length ? liveTrades : (localHistory.length ? localHistory : walletHistory);
+      renderRoundResults(data.round_results, historyRows);
+      if (!historyRows.length) {
+        if (historySig !== "0") {
+          renderHistory([]);
+          historySig = "0";
+        }
+      } else {
+        const tail = historyRows[historyRows.length - 1] || {};
+        const sig = `${historyRows.length}|${tail.id || tail.time || tail.settle_time || tail.order_id || ""}|${tail.status || ""}|${tail.profit ?? tail.price ?? ""}`;
+        if (sig !== historySig) {
+          renderHistory(historyRows);
+          historySig = sig;
+        }
+      }
+    }
+
+    function normalizeProbInput(v) {
+      const n = Number(v);
+      if (!Number.isFinite(n)) return null;
+      if (n > 1) return n / 100;
+      return n;
+    }
+
+    function autoFillProbByOutcome() {
+      const outcome = $("manualOutcome").value;
+      const p = outcome === "UP" ? maybeNum(latestPrices.up_price) : maybeNum(latestPrices.down_price);
+      if (p === null) return;
+      $("manualProb").value = (p * 100).toFixed(2);
+    }
+
+    async function submitManualOrder(action, intent) {
+      const outcome = String($("manualOutcome").value || "").toUpperCase();
+      const amount = Number($("manualAmount").value);
+      const probRaw = (intent === "take_profit")
+        ? $("manualTpProb").value
+        : (intent === "stop_loss")
+          ? $("manualSlProb").value
+          : $("manualProb").value;
+      const probability = normalizeProbInput(probRaw);
+      const tip = $("manualTip");
+      const finalIntent = String(intent || "manual_panel");
+
+      if (!latestMarket || !latestMarket.slug) {
+        tip.textContent = "Error: No active market.";
+        return;
+      }
+      if (!["UP", "DOWN"].includes(outcome)) {
+        tip.textContent = "Error: Side must be UP or DOWN.";
+        return;
+      }
+      if (action === "BUY" && (!Number.isFinite(amount) || amount <= 0)) {
+        tip.textContent = "Error: Order size must be greater than 0.";
+        return;
+      }
+      if (probability === null || probability < 0.01 || probability > 0.99) {
+        tip.textContent = finalIntent === "take_profit"
+          ? "Error: Enter a valid take-profit level (1%–99%)."
+          : (finalIntent === "stop_loss"
+            ? "Error: Enter a valid stop-loss level (1%–99%)."
+            : "Error: Probability must be between 1% and 99%.");
+        return;
+      }
+
+      tip.textContent = `Submitting: ${action} ${outcome} ...`;
+      try {
+        const r = await fetch("/api/manual-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action,
+            outcome,
+            amount,
+            probability,
+            intent: finalIntent,
+          }),
+        });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok || !j.ok) {
+          tip.textContent = `Error: ${j.error || r.status}`;
+          return;
+        }
+        if (action === "SELL") {
+          tip.textContent = `OK: ${j.intent || "manual"} ${j.outcome} submitted, size ${(Number(j.size)||0).toFixed(4)}, order ${j.order_id}`;
+        } else {
+          tip.textContent = `OK: ${j.action} ${j.outcome} submitted, order ${j.order_id}`;
+        }
+      } catch (e) {
+        tip.textContent = `Error: ${String((e && e.message) || e)}`;
+      }
+    }
+
+    function renderHistory(items) {
+      const rows = Array.isArray(items) ? items : [];
+      const list = $("historyList");
+      $("historyCount").textContent = `Records: ${rows.length}`;
+      if (!rows.length) {
+        list.innerHTML = '<div class="history-item"><div class="history-main">No trade history</div></div>';
+        return;
+      }
+      const latest = rows.slice(-40).reverse();
+      list.innerHTML = latest.map((x) => {
+        if (x && x.status === "AGG") {
+          const p = maybeNum(x.profit);
+          const pText = p === null ? "--" : `${p >= 0 ? "+" : "-"}$${Math.abs(p).toFixed(2)}`;
+          const d = x.direction || "-";
+          const fo = String(x.final_outcome || "-");
+          const rs = x.reason || "market";
+          const size = maybeNum(x.size);
+          const ec = maybeNum(x.buy_count);
+          const xc = maybeNum(x.sell_count);
+          const rc = maybeNum(x.redeem_count);
+          const t = x.settle_time || x.order_time || "-";
+          const bjt = fmtBeijingTime(t);
+          const cls = p === null ? "" : (p >= 0 ? "up" : "down");
+          const foCls = fo === "UP" ? "up" : (fo === "DOWN" ? "down" : "warn");
+          return `
+            <div class="history-item">
+              <div class="history-main">${t} | ${d} | outcome <span class="${foCls}">${fo}</span> | <span class="${cls}">${pText}</span></div>
+              <div class="history-sub">${rs}${bjt !== "-" ? ` | CST ${bjt}` : ""} | buy ${ec ?? 0} sell ${xc ?? 0} redeem ${rc ?? 0} | size ${size === null ? "-" : size.toFixed(4)}</div>
+            </div>`;
+        }
+        const t = x.time || "-";
+        const action = x.action || "-";
+        const side = x.side || "-";
+        const st = x.status || "-";
+        const p = x.price !== undefined ? `${fmt(Number(x.price) * 100, 2)}%` : "-";
+        const amount = x.amount !== undefined ? `$${fmt(x.amount, 2)}` : "-";
+        const reason = x.reason || "-";
+        const oid = x.order_id || "-";
+        return `
+          <div class="history-item">
+            <div class="history-main">${t} | ${action} ${side} | ${st}</div>
+            <div class="history-sub">price ${p} | amount ${amount} | reason ${reason} | order ${oid}</div>
+          </div>`;
+      }).join("");
+    }
+
+    function renderRoundResults(roundRows, fallbackRows) {
+      const source = Array.isArray(roundRows) ? roundRows : [];
+      const fb = Array.isArray(fallbackRows) ? fallbackRows : [];
+      let rounds = source.filter((x) => x && x.kind === "MARKET_ROUND");
+      if (!rounds.length) {
+        rounds = fb.filter((x) => x && x.status === "AGG").map((x) => ({
+          kind: "MARKET_ROUND",
+          slug: x.market_slug || x.slug || x.reason || "",
+          start: x.order_time || "",
+          end: x.settle_time || "",
+          time: x.settle_time || x.order_time || "-",
+          status: x.result === "OPEN" ? "settling" : "resolved",
+          entry_side: x.direction || "-",
+          final_outcome: x.final_outcome || x.result || "-",
+          final_diff: maybeNum(x.final_diff ?? x.diff),
+          profit: x.profit,
+          direction: x.direction || "-",
+        }));
+      }
+
+      // Win rate from settled rows: profit>0 => win, else loss
+      const settled = fb.filter((x) => x && x.status === "AGG" && String(x.result || "").toUpperCase() !== "OPEN");
+      const judgedProfit = settled.map((x) => maybeNum(x.profit)).filter((v) => v !== null);
+      const winsByProfit = judgedProfit.filter((v) => v > 0).length;
+      const lossesByProfit = judgedProfit.filter((v) => v <= 0).length;
+      const totalJudged = winsByProfit + lossesByProfit;
+      const winRate = totalJudged > 0 ? `${((winsByProfit / totalJudged) * 100).toFixed(1)}%` : "-";
+      if (totalJudged > 0) {
+        const losses = lossesByProfit;
+        $("winRate").innerHTML = `${winRate} (<span class="up">${winsByProfit}</span>/<span class="down">${losses}</span>/<span class="warn">${totalJudged}</span>)`;
+        $("winRate").className = "v";
+      } else {
+        $("winRate").textContent = "-";
+        $("winRate").className = "v";
+      }
+
+      const box = $("roundResultList");
+      if (!rounds.length) {
+        $("winRate").textContent = "-";
+        $("winRate").className = "v";
+        box.innerHTML = '<div class="round-item">No round results</div>';
+        return;
+      }
+
+      // Newest first; keep at most 100
+      const toTs = (x) => {
+        const v = (x && (x.end || x.time || x.start)) ? String(x.end || x.time || x.start) : "";
+        const t = Date.parse(v);
+        return Number.isFinite(t) ? t : 0;
+      };
+
+      let latest = rounds.slice(0).sort((a, b) => toTs(b) - toTs(a));
+      if (latest.length > 100) {
+        latest = latest.slice(0, 100);
+      }
+
+      $("roundCount").textContent = `Rounds: ${rounds.length}`;
+      const sig = JSON.stringify(latest.map((x) => [x.slug || "", x.time || "", x.entry_side || "", x.final_outcome || "", x.status || "", x.final_diff ?? "", x.profit ?? "", x.skip_reason || ""]));
+      if (sig === roundSig) return;
+      roundSig = sig;
+
+      box.innerHTML = latest.map((x) => {
+        const marketText = fmtBeijingMarketText(x.start, x.end, x.slug);
+        const buySide = String(x.entry_side || "-").toUpperCase();
+        const fo = String(x.final_outcome || x.result || "-");
+        const foNorm = fo.toUpperCase();
+        const status = String(x.status || "-");
+        const finalDiff = maybeNum(x.final_diff ?? x.last_diff);
+        const diffText = finalDiff === null
+          ? "N/A"
+          : `${finalDiff >= 0 ? "+" : ""}${(Math.abs(finalDiff) >= 10 ? finalDiff.toFixed(0) : finalDiff.toFixed(2))}`;
+        const diffCls = finalDiff === null ? "warn" : (finalDiff >= 0 ? "up" : "down");
+        const p = maybeNum(x.profit);
+        const pText = p === null ? "" : ` | ${p >= 0 ? "+" : "-"}$${Math.abs(p).toFixed(2)}`;
+        const cls = p === null ? "warn" : (p >= 0 ? "up" : "down");
+        const foCls = fo === "UP" ? "up" : (fo === "DOWN" ? "down" : "warn");
+        const sideCls = buySide === "UP" ? "up" : (buySide === "DOWN" ? "down" : "warn");
+        const verdict = p !== null
+          ? (p > 0 ? "Win" : "Loss")
+          : ((buySide === "UP" || buySide === "DOWN") && (foNorm === "UP" || foNorm === "DOWN") && status === "resolved"
+            ? (buySide === foNorm ? "Win" : "Loss")
+            : "-");
+        const verdictCls = verdict === "Win" ? "up" : (verdict === "Loss" ? "down" : "warn");
+        const stText = status === "active" ? "active" : (status === "settling" ? "settling" : (status === "resolved" ? "resolved" : status));
+        const skip = String(x.skip_reason || "").trim();
+        const skipText = skip ? ` | skip: ${skip}` : "";
+        return `<div class="round-item">${marketText} | buy <span class="${sideCls}">${buySide}</span> | status ${stText} | outcome <span class="${foCls}">${fo}</span> | verdict <span class="${verdictCls}">${verdict}</span> | final diff <span class="${diffCls}">${diffText}</span>${pText ? ` | <span class="${cls}">${pText.slice(3)}</span>` : ""}${skipText}</div>`;
+      }).join("");
+    }
+
+    function renderLogs(items) {
+      const sig = JSON.stringify(items.slice(-20));
+      if (sig === logSig) return;
+      logSig = sig;
+      const box = $("logs");
+      box.innerHTML = "";
+      for (const row of items) {
+        const p = document.createElement("p");
+        p.className = `log log-${row.level || "INFO"}`;
+        p.textContent = `[${row.time || "--:--:--"}] ${row.message || ""}`;
+        box.appendChild(p);
+      }
+      box.scrollTop = box.scrollHeight;
+    }
+
+    async function pollStatus() {
+      try {
+        const r = await fetch("/api/status", { cache: "no-store" });
+        if (!r.ok) return;
+        renderStatus(await r.json());
+      } catch (_) {}
+    }
+
+    async function pollLogs() {
+      try {
+        const r = await fetch("/api/logs", { cache: "no-store" });
+        if (!r.ok) return;
+        const j = await r.json();
+        renderLogs((j && j.items) || []);
+      } catch (_) {}
+    }
+
+    function startLiveStream() {
+      if (!("EventSource" in window)) return false;
+      try {
+        const es = new EventSource("/api/stream");
+        es.addEventListener("status", (ev) => {
+          try {
+            const j = JSON.parse(ev.data || "{}");
+            renderStatus((j && j.data) || {});
+          } catch (_) {}
+        });
+        es.addEventListener("logs", (ev) => {
+          try {
+            const j = JSON.parse(ev.data || "{}");
+            renderLogs((j && j.items) || []);
+          } catch (_) {}
+        });
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function enhanceCards() {
+      document.querySelectorAll('.card').forEach((card, idx) => {
+        const h3 = card.querySelector(':scope > h3');
+        if (!h3 || card.dataset.enhanced === '1') return;
+        const head = document.createElement('div');
+        head.className = 'card-head';
+        const tools = document.createElement('div');
+        tools.className = 'card-tools';
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'mini-btn';
+        btn.textContent = 'Collapse';
+        btn.addEventListener('click', () => {
+          const collapsed = card.classList.toggle('collapsed');
+          Array.from(card.children).forEach((el) => {
+            if (el !== head) el.style.display = collapsed ? 'none' : '';
+          });
+          btn.textContent = collapsed ? 'Expand' : 'Collapse';
+          h3.style.display = '';
+          head.style.display = '';
+        });
+        tools.appendChild(btn);
+        h3.parentNode.insertBefore(head, h3);
+        head.appendChild(h3);
+        head.appendChild(tools);
+        card.dataset.enhanced = '1';
+      });
+    }
+
+    function bindQuickAmounts(){
+      document.querySelectorAll('#quickAmounts .chip').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          const v = Number(btn.dataset.amt || 5);
+          $('manualAmount').value = String(v);
+        });
+      });
+    }
+
+    function bindBtcMarketInterval() {
+      document.querySelectorAll(".interval-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const m = Number(btn.dataset.min);
+          if (!Number.isFinite(m)) return;
+          document.querySelectorAll(".interval-btn").forEach((b) => { b.disabled = true; });
+          try {
+            const r = await fetch("/api/btc-market-minutes", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ minutes: m }),
+            });
+            const j = await r.json().catch(() => ({}));
+            if (!r.ok || !j.ok) {
+              console.warn("btc-market-minutes:", j.error || r.status);
+            } else {
+              pollStatus();
+            }
+          } catch (e) {
+            console.warn(e);
+          } finally {
+            document.querySelectorAll(".interval-btn").forEach((b) => { b.disabled = false; });
+          }
+        });
+      });
+    }
+
+    enhanceCards();
+    bindQuickAmounts();
+    bindBtcMarketInterval();
+
+    pollStatus();
+    pollLogs();
+    $("manualOutcome").addEventListener("change", autoFillProbByOutcome);
+    $("manualBuyBtn").addEventListener("click", () => submitManualOrder("BUY", "manual_panel"));
+    $("manualSellBtn").addEventListener("click", () => submitManualOrder("SELL", "manual_panel"));
+    $("manualTpBtn").addEventListener("click", () => submitManualOrder("SELL", "take_profit"));
+    $("manualSlBtn").addEventListener("click", () => submitManualOrder("SELL", "stop_loss"));
+    setInterval(pollStatus, 500);
+    setInterval(pollLogs, 1000);
+  </script>
+</body>
+</html>

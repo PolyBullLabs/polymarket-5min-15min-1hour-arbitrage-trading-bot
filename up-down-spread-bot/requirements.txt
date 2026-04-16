@@ -1,0 +1,26 @@
+# Trading & Blockchain
+py-clob-client>=0.20.0
+web3>=6.0.0
+eth-account>=0.9.0
+
+# Network & WebSockets
+websocket-client>=1.6.0
+requests>=2.31.0
+
+# Configuration
+python-dotenv>=1.0.0
+
+# Data Processing
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Utilities
+python-dateutil>=2.8.0
+pytz>=2023.3
+
+# Web dashboard (optional: python main.py --web)
+flask>=3.0.0

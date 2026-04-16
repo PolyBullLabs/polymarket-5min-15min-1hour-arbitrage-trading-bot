@@ -1,0 +1,142 @@
+{
+  "safety": {
+    "dry_run": true,
+    "max_order_size_usd": 150.0,
+    "max_orders_per_minute": 100,
+    "max_total_investment": 1000.0
+  },
+  "trading": {
+    "btc": {
+      "enabled": true,
+      "reason": ""
+    },
+    "eth": {
+      "enabled": true,
+      "reason": ""
+    },
+    "sol": {
+      "enabled": true,
+      "reason": ""
+    },
+    "xrp": {
+      "enabled": false,
+      "reason": "Disabled by default - less liquid market"
+    }
+  },
+  "strategy": {
+    "name": "late_entry_v3",
+    "entry_window_sec": 240,
+    "entry_frequency_sec": 7,
+    "min_confidence": 0.30,
+    "max_spread": 1.05,
+    "price_max": 0.92,
+    "max_investment_per_market": 300,
+    "sizing": {
+      "above_180_sec": 8,
+      "above_120_sec": 10,
+      "below_120_sec": 12
+    }
+  },
+  "exit": {
+    "flip_stop": {
+      "enabled": true,
+      "price_threshold": 0.48,
+      "check_realtime": true
+    },
+    "stop_loss": {
+      "enabled": true,
+      "check_realtime": true,
+      "per_coin": {
+        "btc": {
+          "enabled": true,
+          "type": "fixed",
+          "value": -12.0
+        },
+        "eth": {
+          "enabled": true,
+          "type": "fixed",
+          "value": -12.0
+        },
+        "sol": {
+          "enabled": true,
+          "type": "fixed",
+          "value": -12.0
+        },
+        "xrp": {
+          "enabled": true,
+          "type": "fixed",
+          "value": -11.0
+        }
+      }
+    }
+  },
+  "execution": {
+    "buy": {
+      "order_type": "FAK",
+      "max_fak_attempts": 3,
+      "retry_delay_sec": 0.3,
+      "min_order_usd": 1.0,
+      "target_fill_percent": 98.0
+    },
+    "sell": {
+      "strategy": "FOK_CHUNKED",
+      "chunk_size": 50,
+      "chunk_delay_sec": 0.1,
+      "max_chunk_retries": 5,
+      "price": 0.01,
+      "min_dust_threshold": 0.1,
+      "sweep_max_attempts": 3,
+      "sweep_retry_delay_sec": 0.1,
+      "sweep_enable_fallback": true,
+      "sweep_fak_attempts": 3,
+      "sweep_market_price": 0.01,
+      "delayed_sweep_enabled": true,
+      "delayed_sweep_delay_sec": 1,
+      "delayed_sweep_min_balance": 0.1,
+      "delayed_sweep_fok_attempts": 3,
+      "delayed_sweep_fak_attempts": 2,
+      "delayed_sweep_retry_delay_sec": 1.0
+    },
+    "redeem": {
+      "startup_check_delay_sec": 60,
+      "first_check_delay_sec": 480,
+      "check_interval_sec": 300,
+      "pause_between_redeems_sec": 1,
+      "sizeThreshold": 0.1,
+      "api_max_retries": 3,
+      "api_retry_delay_sec": 60,
+      "api_timeout_sec": 30,
+      "gas_limit": 500000,
+      "gas_price_multiplier": 1.5,
+      "tx_confirmation_timeout_sec": 180
+    },
+    "rpc_config": {
+      "endpoints": [
+        "https://polygon-rpc.com"
+      ],
+      "single_request_timeout_sec": 2,
+      "parallel_timeout_sec": 3,
+      "retry_attempts": 10,
+      "retry_delay_sec": 0.3,
+      "enable_parallel_requests": true
+    }
+  },
+  "data_sources": {
+    "polymarket": {
+      "gamma_api": "https://gamma-api.polymarket.com",
+      "ws_url": "wss://ws-subscriptions-clob.polymarket.com/ws/market",
+      "market_window": "15m"
+    }
+  },
+  "display": {
+    "width": 160,
+    "update_interval": 1
+  },
+  "logging": {
+    "trades_file": "logs/trades.jsonl",
+    "session_file": "logs/session.json"
+  },
+  "notifications": {
+    "chart_every_n_markets": 10
+  }
+}

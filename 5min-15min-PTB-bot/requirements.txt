@@ -1,0 +1,8 @@
+py-clob-client
+requests
+python-dotenv
+websocket-client
+web3
+py-builder-relayer-client
+py-builder-signing-sdk
+flask

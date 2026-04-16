@@ -1,0 +1,75 @@
+{
+  "_docs": "Full parameter guide: see CONFIG.md",
+
+  "market": {
+    "_comment": "5 or 15 — slug btc-updown-5m-<epoch> or btc-updown-15m-<epoch>",
+    "interval_minutes": 5
+  },
+
+  "strategy": {
+    "min_price": 0.75,
+    "max_price": 0.88,
+    "_comment_5m": "Below min_elapsed / no_entry_cutoff are scaled for 5m (300s). For 15m, raise e.g. min_elapsed_sec 530, no_entry_before_end_sec 335.",
+    "min_elapsed_sec": 180,
+    "min_deviation_pct": 3,
+    "max_deviation_pct": 100,
+    "no_entry_before_end_sec": 110,
+    "momentum_window_sec": 60,
+    "vwap_window_sec": 30,
+    "win_rate_csv": "data/win_rate.csv"
+  },
+
+  "entry": {
+    "bet_amount_usd": 5,
+    "price_offset": 0.02,
+    "order_type": "FAK",
+    "max_retries": 3,
+    "retry_delay_ms": 300,
+    "fill_timeout_ms": 1000,
+    "min_contracts": 5,
+    "min_order_usd": 1,
+    "max_entry_price": 0.88,
+    "ws_recovery_timeout_sec": 10
+  },
+
+  "hedge": {
+    "enabled": true,
+    "hedge_price": 0.02,
+    "order_type": "GTD",
+    "max_retries": 3,
+    "retry_delay_ms": 1000
+  },
+
+  "redeem": {
+    "enabled": true,
+    "interval_seconds": 180,
+    "auto_confirm": true
+  },
+
+  "simulation": {
+    "_comment": "Paper trading: live market data, no CLOB orders or redeemer. API keys optional when enabled.",
+    "enabled": true,
+    "separate_trading_log": true,
+    "trading_log_path": "logs/trading_log_sim.json",
+    "history_csv_path": "logs/simulation_trades.csv",
+    "history_jsonl_path": "logs/simulation_history.jsonl",
+    "history_summary_path": "logs/simulation_summary.json"
+  },
+
+  "telegram": {
+    "enabled": true,
+    "chart_every_n_trades": 5
+  },
+
+  "web_dashboard": {
+    "_comment": "Open http://127.0.0.1:PORT/ (not https). If the page fails, avoid typing only localhost (IPv6). Use 0.0.0.0 to listen on all IPv4 interfaces.",
+    "enabled": true,
+    "host": "127.0.0.1",
+    "port": 8765
+  },
+
+  "logging": {
+    "level": "INFO",
+    "file_rotation_hours": 3
+  }
+}

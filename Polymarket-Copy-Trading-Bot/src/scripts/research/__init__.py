@@ -1,2 +1,0 @@
-"""Trader research scripts"""
-

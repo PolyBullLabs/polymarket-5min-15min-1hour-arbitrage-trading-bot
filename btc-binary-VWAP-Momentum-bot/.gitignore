@@ -1,0 +1,38 @@
+# Secrets
+.env
+
+# Logs and runtime data
+logs/
+logs_v1/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.cursor/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backtest / analysis data
+backtest_data/
+
+# Charts and images (generated at runtime)
+*.png

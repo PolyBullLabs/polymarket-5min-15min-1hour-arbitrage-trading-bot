@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Meridian — Control &amp; Analytics</title>
+  <link rel="stylesheet" href="/static/app.css" />
+</head>
+<body>
+  <div class="layout">
+    <header class="header">
+      <h1>Meridian</h1>
+      <p class="subtitle" id="header-subtitle">Polymarket desk · live status · settings · analytics</p>
+      <div class="header-actions">
+        <span id="conn-badge" class="badge badge-warn">connecting…</span>
+        <button type="button" id="btn-refresh" class="btn btn-secondary">Refresh now</button>
+        <button type="button" id="btn-stop" class="btn btn-danger">Request stop</button>
+      </div>
+    </header>
+
+    <section class="panel summary" id="panel-summary">
+      <h2>Session</h2>
+      <div class="grid-4" id="summary-stats"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Markets (live)</h2>
+      <div class="coins-grid" id="coins-container"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Recent closed trades</h2>
+      <div class="table-wrap">
+        <table class="data-table" id="recent-trades">
+          <thead>
+            <tr>
+              <th>Strategy</th>
+              <th>Market</th>
+              <th>PnL</th>
+              <th>Winner</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Settings <span class="hint">(edit JSON — restart bot to apply)</span></h2>
+      <div class="settings-row">
+        <textarea id="config-editor" spellcheck="false" rows="18"></textarea>
+        <div class="settings-actions">
+          <button type="button" id="btn-load-config" class="btn btn-secondary">Reload from disk</button>
+          <button type="button" id="btn-save-config" class="btn btn-primary">Save config.json</button>
+        </div>
+        <p id="config-message" class="message"></p>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>API: <code>/api/status</code>, <code>/api/config</code>, <code>POST /api/bot/stop</code> · Start bot with <code>python main.py --web</code></p>
+    </footer>
+  </div>
+  <script src="/static/app.js"></script>
+</body>
+</html>

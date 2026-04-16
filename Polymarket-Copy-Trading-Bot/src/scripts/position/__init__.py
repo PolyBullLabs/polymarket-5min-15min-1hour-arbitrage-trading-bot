@@ -1,2 +1,0 @@
-"""Position management scripts"""
-
